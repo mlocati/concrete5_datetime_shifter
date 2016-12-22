@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<concrete5-cif version="1.0">
+    <singlepages>
+        <page name="DATETIME shifter" path="/dashboard/system/basics/timezone/datetime_shifter" filename="/dashboard/system/basics/timezone/datetime_shifter.php" pagetype="" description="Add or remove a specified amount of time from DATETIME datbase fields" package="datetime_shifter"></page>
+    </singlepages>
+</concrete5-cif>
