@@ -91,13 +91,23 @@ class DatetimeShifter extends DashboardPageController
             if ($hours === 0 && $minutes === 0) {
                 $errors->add('Invalid fields: hours/minutes');
             }
-            $limit = $this->post('limit');
-            if (!is_string($limit) || !preg_match('/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})$/', $limit, $matches)) {
-                $errors->add('Invalid field: limit');
-            } else {
-                $dh = $this->app->make('date');
-                /* @var \Concrete\Core\Localization\Service\Date $dh */
-                $limit = $dh->toDateTime("{$matches[1]} {$matches[2]}", 'user', 'system')->format($dh::DB_FORMAT);
+            $dh = $this->app->make('date');
+            /* @var \Concrete\Core\Localization\Service\Date $dh */
+            $limitMin = $this->post('limitMin');
+            if ($limitMin !== '') {
+                if (!is_string($limitMin) || !preg_match('/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}(:\d{2})?)$/', $limitMin, $matches)) {
+                    $errors->add('Invalid field: limitMin');
+                } else {
+                    $limitMin = $dh->toDateTime("{$matches[1]} {$matches[2]}", 'user', 'system')->format($dh::DB_FORMAT);
+                }
+            }
+            $limitMax = $this->post('limitMax');
+            if ($limitMax !== '') {
+                if (!is_string($limitMax) || !preg_match('/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}(:\d{2})?)$/', $limitMax, $matches)) {
+                    $errors->add('Invalid field: limitMax');
+                } else {
+                    $limitMax = $dh->toDateTime("{$matches[1]} {$matches[2]}", 'user', 'system')->format($dh::DB_FORMAT);
+                }
             }
             if (!$errors->has()) {
                 $db = $this->app->make('Concrete\Core\Database\Connection\Connection');
@@ -105,7 +115,6 @@ class DatetimeShifter extends DashboardPageController
                 $platform = $db->getDatabasePlatform();
                 $quotedTablename = $platform->quoteSingleIdentifier($tablename);
                 $quotedFieldname = $platform->quoteSingleIdentifier($fieldname);
-
                 $sql = <<<EOT
 UPDATE
     $quotedTablename
@@ -113,10 +122,15 @@ SET
     $quotedFieldname = $sqlFunction($quotedFieldname, INTERVAL '$hours:$minutes' HOUR_MINUTE)
 WHERE
     ($quotedFieldname IS NOT NULL)
-    AND ($quotedFieldname != '0000-00-00 00:00:00')
-    AND ($quotedFieldname <= '$limit')
+    AND ($quotedFieldname != '0000-00-00 00:00:00') 
 EOT
                 ;
+                if ($limitMin !== '') {
+                    $sql .= " AND ($quotedFieldname >= '$limitMin')";
+                }
+                if ($limitMax !== '') {
+                    $sql .= " AND ($quotedFieldname <= '$limitMax')";
+                }
                 $numUpdated = (int) $db->executeQuery($sql)->rowCount();
             }
         }

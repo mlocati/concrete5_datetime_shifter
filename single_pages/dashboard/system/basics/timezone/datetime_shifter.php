@@ -66,9 +66,15 @@ defined('C5_EXECUTE') or die('Access Denied.');
             </div>
         </div>
         <div class="form-group">
-            <label for="dts-options-limit" class="col-sm-5 control-label"><?php echo t('For date/times before'); ?></label>
+            <label for="dts-options-limit-min" class="col-sm-5 control-label"><?php echo t('For date/times after'); ?></label>
             <div class="col-sm-7">
-                <input type="datetime-local" id="dts-options-limit" class="form-control" value="<?php
+                <input type="datetime-local" id="dts-options-limit-min" class="form-control" value="" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="dts-options-limit-max" class="col-sm-5 control-label"><?php echo t('For date/times before'); ?></label>
+            <div class="col-sm-7">
+                <input type="datetime-local" id="dts-options-limit-max" class="form-control" value="<?php
                 $now = new DateTime();
                 echo $now->format('Y-m-d\TH:i:s');
                 ?>" />
@@ -152,11 +158,21 @@ function askOptions() {
                         $('#dts-options-hours').focus();
                         return;
                     }
-                    $i = $('#dts-options-limit');
-                    options.limit = $i.val();
-                    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(options.limit)) {
-                        $i.focus();
-                        return;
+                    $i = $('#dts-options-limit-min');
+                    options.limitMin = $i.val();
+                    if (options.limitMin !== '') {
+                        if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(options.limitMin)) {
+                            $i.focus();
+                            return;
+                        }
+                    }
+                    $i = $('#dts-options-limit-max');
+                    options.limitMax = $i.val();
+                    if (options.limitMax !== '') {
+                        if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(options.limitMax)) {
+                            $i.focus();
+                            return;
+                        }
                     }
                     $optionsDialog.dialog('close');
                     showProcessDialog(options);
