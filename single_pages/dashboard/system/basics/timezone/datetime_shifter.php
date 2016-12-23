@@ -121,7 +121,7 @@ function getSelectedFields() {
 $('#dts-apply').on('click', function(e) {
     e.preventDefault();
     if (getSelectedFields().length === 0) {
-        window.alert(<?php echo json_encode('Please select at least one table field.'); ?>);
+        window.alert(<?php echo json_encode(t('Please select at least one table field.')); ?>);
         return;
     }
     askOptions();
@@ -230,7 +230,7 @@ function processNext(options) {
     if ($tr.length === 0) {
         setTimeout(function() {
             window.alert(<?php echo json_encode(t("Operations completed.")); ?>);
-        }, 10);
+        }, 100);
         processing = false;
         return;
     }
